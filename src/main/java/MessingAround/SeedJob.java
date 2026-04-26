@@ -1,46 +1,45 @@
 package MessingAround;
 
-import dev.xpple.cubiomes.*;
+import dev.xpple.cubiomes.Cubiomes;
+import dev.xpple.cubiomes.Generator;
+
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 import static java.lang.System.out;
 
+public class SeedJob implements Runnable {
 
-public class TestingClass {
+    MemorySegment generator;
+    Arena arena;
+    RandomGenerator rng = new Random();
+    long seedAmount;
+    int version;
+    public long currSeedAttempt;
+    SeedJob(int version, Arena arena, long  seedAmount ) {
+        this.version = version;
+        this.arena = arena;
+        this.seedAmount = seedAmount;
+    }
+    @Override
+    public void run() {
+    init();
 
-    // private final static Arena arena = Arena.global();
-
-    public static void Init(){
-        CubiomesInit.load();
+    for (currSeedAttempt = 0; currSeedAttempt <= seedAmount; currSeedAttempt++) { ProcessSeed(currSeedAttempt);}
     }
 
-    static void main(String[] args) {
-        Init();
-        long start = System.nanoTime();
-        long seedAmount = Long.parseLong(args[0]);
-
-
-        int version = Cubiomes.MC_1_21();
-
-        Arena arena = Arena.global();
-        MemorySegment generator = Generator.allocate(arena);
-
+    private void init() {
+        generator = Generator.allocate(arena);
         Cubiomes.setupGenerator(generator, version, 0);
 
-        for (int i = 0; i < seedAmount +1; i++) {
-            Cubiomes.applySeed(generator, Cubiomes.DIM_OVERWORLD(), i);
-            FindVillage(arena, version, i, generator);
-        }
-        long end = System.nanoTime();
-        double seconds = (end - start) / 1_000_000_000.0;
-        out.println(seedAmount + " Completed in Time: " + seconds + " seconds");
-        out.println("seeds per second: " + seedAmount/seconds);
-
     }
 
-    private static void FindVillage(Arena arena, int version, long seed, MemorySegment generator) {
+    public void ProcessSeed(long seed) {
+
+        Cubiomes.applySeed(generator, Cubiomes.DIM_OVERWORLD(), seed);
         int structure = Cubiomes.Village();
 
         MemorySegment spawn = Cubiomes.getSpawn(arena, generator);
@@ -81,7 +80,7 @@ public class TestingClass {
 
         MemorySegment strongholdPos = Cubiomes.initFirstStronghold(arena, generator, version, seed);
         int maxBlockRange = 1050;
-        
+
         int x = strongholdPos.get(ValueLayout.JAVA_INT, 0);
         int z = strongholdPos.get(ValueLayout.JAVA_INT, 4);
 
@@ -94,5 +93,7 @@ public class TestingClass {
     }
 
 
+    private long getRandomSeed(){
+        return  rng.nextLong();
+    }
 }
-
