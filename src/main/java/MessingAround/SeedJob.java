@@ -14,6 +14,7 @@ import static java.lang.System.out;
 public class SeedJob implements Runnable {
     public JobData jobData;
     public long currSeedAttempt;
+    public static final int MAX_STRONGHOLD_RANGE = 1300;
     SeedJob(int version, Arena arena, long  seedAmount ) {
         jobData = new JobData(arena, seedAmount, version);
     }
@@ -28,6 +29,11 @@ public class SeedJob implements Runnable {
     public void ProcessSeed(long seed) {
 
         Cubiomes.applySeed(jobData.generator, Cubiomes.DIM_OVERWORLD(), seed);
+        Position strongholdPos = FindStronghold(jobData, seed);
+        if (IsStrongholdGood(strongholdPos)) {out.println("good stronghold: " + strongholdPos.x + " " + strongholdPos.z);} else return;
+
+
+
 
 
         MemorySegment spawn = Cubiomes.getSpawn(jobData.arena, jobData.generator);
@@ -40,7 +46,8 @@ public class SeedJob implements Runnable {
         jobData.structurePos.setFromBlock(jobData.pos.get(ValueLayout.JAVA_INT, 0), jobData.pos.get(ValueLayout.JAVA_INT, 4));
 
 
-        Position strongholdPos = FindStronghold(jobData, seed);
+
+
 
 
      //   boolean validVillage = Cubiomes.isViableStructurePos(jobData.structure, jobData.generator, jobData.structurePos.getBlockX(), jobData.structurePos.getBlockZ(), 0) != 0;
@@ -63,21 +70,19 @@ public class SeedJob implements Runnable {
 
     }
 
+    public static boolean IsStrongholdGood(Position position) {
+        if (Position.isWithinRange(position, MAX_STRONGHOLD_RANGE)) {return true;} else {return false;}
+    }
+
+
+
     public static Position FindStronghold(JobData data, long seed){
 
         MemorySegment strongholdPos = Cubiomes.initFirstStronghold(data.arena, data.generator, data.version, seed);
 
-        int maxBlockRange = 1050;
-
         int x = strongholdPos.get(ValueLayout.JAVA_INT, 0);
         int z = strongholdPos.get(ValueLayout.JAVA_INT, 4);
-
-        if (x > maxBlockRange || z > maxBlockRange  || x < -maxBlockRange || z < -maxBlockRange){
-            return new Position(0, 0);
-        } else {
-            return new Position(x, z);
-        }
-
+        return new Position(x, z);
     }
 
 }

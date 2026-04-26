@@ -8,6 +8,10 @@ public class Position {
         this.z = z;
     }
 
+ public static boolean isWithinRange(Position position, long range) {
+        long rangeSquared = range * range;
+        return (position.x * position.x + position.z * position.z <= rangeSquared);
+ }
     public boolean isEmpty() {
         return x == 0 && z == 0;
     }
