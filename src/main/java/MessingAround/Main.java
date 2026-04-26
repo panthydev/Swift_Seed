@@ -27,6 +27,7 @@ public class Main {
             SeedJob job = new SeedJob(version, arena, seedAmount);
             Thread thread = new Thread(job);
             out.println(thread.getName());
+            thread.setPriority(Thread.MAX_PRIORITY);
             thread.start();
             Workers[i] = thread;
             jobs[i] = job;

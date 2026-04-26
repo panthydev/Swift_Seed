@@ -12,77 +12,60 @@ import java.util.random.RandomGenerator;
 import static java.lang.System.out;
 
 public class SeedJob implements Runnable {
-
-    MemorySegment generator;
-    Arena arena;
-    RandomGenerator rng = new Random();
-    long seedAmount;
-    int version;
+    public JobData jobData;
     public long currSeedAttempt;
     SeedJob(int version, Arena arena, long  seedAmount ) {
-        this.version = version;
-        this.arena = arena;
-        this.seedAmount = seedAmount;
+        jobData = new JobData(arena, seedAmount, version);
     }
     @Override
     public void run() {
-        init();
-        MemorySegment pos = arena.allocate(2 * Integer.BYTES); // 8 bytes
-        Position spawnPos = new Position(0, 0);
-        Position structurePos = new Position(0, 0);
 
 
-
-    for (currSeedAttempt = 0; currSeedAttempt <= seedAmount; currSeedAttempt++) { ProcessSeed(currSeedAttempt, pos, spawnPos, structurePos);}
+    for (currSeedAttempt = 0; currSeedAttempt <= jobData.seedAmount; currSeedAttempt++) {
+        ProcessSeed(currSeedAttempt); }
     }
 
-    private void init() {
-        generator = Generator.allocate(arena);
-        Cubiomes.setupGenerator(generator, version, 0);
+    public void ProcessSeed(long seed) {
 
-    }
-
-    public void ProcessSeed(long seed, MemorySegment pos, Position spawnPos, Position structrurePos) {
-
-        Cubiomes.applySeed(generator, Cubiomes.DIM_OVERWORLD(), seed);
-        int structure = Cubiomes.Village();
-
-        MemorySegment spawn = Cubiomes.getSpawn(arena, generator);
-
-        spawnPos.setFromBlock(spawn.get(ValueLayout.JAVA_INT, 0), spawn.get(ValueLayout.JAVA_INT, 4));
+        Cubiomes.applySeed(jobData.generator, Cubiomes.DIM_OVERWORLD(), seed);
 
 
-        Cubiomes.getStructurePos(structure, version, seed, spawnPos.getRegionX(), spawnPos.getRegionZ(), pos);
+        MemorySegment spawn = Cubiomes.getSpawn(jobData.arena, jobData.generator);
 
-        structrurePos.setFromBlock(pos.get(ValueLayout.JAVA_INT, 0), pos.get(ValueLayout.JAVA_INT, 4));
+        jobData.spawnPos.setFromBlock(spawn.get(ValueLayout.JAVA_INT, 0), spawn.get(ValueLayout.JAVA_INT, 4));
 
 
+        Cubiomes.getStructurePos(jobData.structure, jobData.version, seed, jobData.spawnPos.getRegionX(), jobData.spawnPos.getRegionZ(), jobData.pos);
 
-        boolean validVillage = Cubiomes.isViableStructurePos(structure, generator, structrurePos.getBlockX(), structrurePos.getBlockZ(), 0) != 0;
+        jobData.structurePos.setFromBlock(jobData.pos.get(ValueLayout.JAVA_INT, 0), jobData.pos.get(ValueLayout.JAVA_INT, 4));
+
+
+        Position strongholdPos = FindStronghold(jobData, seed);
+
+
+     //   boolean validVillage = Cubiomes.isViableStructurePos(jobData.structure, jobData.generator, jobData.structurePos.getBlockX(), jobData.structurePos.getBlockZ(), 0) != 0;
 
 
 
-        Position strongholdPos = FindStronghold(arena, version, seed, generator);
-        /*
+
+/*
 
          if (validVillage){
 
         }
-a
+
         if (!strongholdPos.isEmpty()){
-            out.println("Seed: " + seed + " has a village near spawn at: " + structureX + ", " + structureZ);
+            out.println("Seed: " + seed + " has a village near spawn at: " + jobData.structurePos.x + ", " + jobData.structurePos.z);
             out.println("stronghold pos: " + strongholdPos.x + " " + strongholdPos.z);
-
-
         }
-*/
 
+*/
 
     }
 
-    public static Position FindStronghold(Arena arena, int version, long seed, MemorySegment generator){
+    public static Position FindStronghold(JobData data, long seed){
 
-        MemorySegment strongholdPos = Cubiomes.initFirstStronghold(arena, generator, version, seed);
+        MemorySegment strongholdPos = Cubiomes.initFirstStronghold(data.arena, data.generator, data.version, seed);
 
         int maxBlockRange = 1050;
 
@@ -97,8 +80,4 @@ a
 
     }
 
-
-    private long getRandomSeed(){
-        return  rng.nextLong();
-    }
 }
