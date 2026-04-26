@@ -1,9 +1,9 @@
 package MessingAround;
 
-public class position {
+public class Position {
     int x;
     int z;
-    public position(int x, int z) {
+    public Position(int x, int z) {
         this.x = x;
         this.z = z;
     }

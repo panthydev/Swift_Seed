@@ -66,7 +66,7 @@ public class TestingClass {
         boolean validVillage = Cubiomes.isViableStructurePos(structure, generator, structureX, structureZ, 0) != 0;
 
         if (validVillage){
-            position strongholdPos = FindStronghold(arena, version, seed, generator);
+            Position strongholdPos = FindStronghold(arena, version, seed, generator);
 
             if (!strongholdPos.isEmpty()){
                 out.println("Seed: " + seed + " has a village near spawn at: " + structureX + ", " + structureZ);
@@ -77,7 +77,7 @@ public class TestingClass {
         }
     }
 
-    public static position FindStronghold(Arena arena, int version, long seed, MemorySegment generator){
+    public static Position FindStronghold(Arena arena, int version, long seed, MemorySegment generator){
 
         MemorySegment strongholdPos = Cubiomes.initFirstStronghold(arena, generator, version, seed);
         int maxBlockRange = 1050;
@@ -86,9 +86,9 @@ public class TestingClass {
         int z = strongholdPos.get(ValueLayout.JAVA_INT, 4);
 
         if (x > maxBlockRange || z > maxBlockRange  || x < -maxBlockRange || z < -maxBlockRange){
-            return new position(0, 0);
+            return new Position(0, 0);
         } else {
-            return new position(x, z);
+            return new Position(x, z);
         }
 
     }
