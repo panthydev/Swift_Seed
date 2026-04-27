@@ -7,6 +7,7 @@ import dev.xpple.cubiomes.Range;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.util.Random;
 
 import static java.lang.System.out;
 
@@ -22,15 +23,17 @@ public class Main {
         long seedAmount = Long.parseLong(args[0]);
         Thread[] Workers =  new Thread[Integer.parseInt(args[1])];
         SeedJob[] jobs = new SeedJob[Workers.length];
+        long[] offsets = generateStartOffsets(Workers.length,  seedAmount);
 
-        for (int i = 0; i < Workers.length; i++) {
-            SeedJob job = new SeedJob(version, arena, seedAmount);
+
+        for (int i = 1; i < Workers.length +1; i++) {
+            SeedJob job = new SeedJob(version, arena, seedAmount, i, offsets[i-1]);
             Thread thread = new Thread(job);
             out.println(thread.getName());
             thread.setPriority(Thread.MAX_PRIORITY);
             thread.start();
-            Workers[i] = thread;
-            jobs[i] = job;
+            Workers[i -1] = thread;
+            jobs[i -1] = job;
         }
 
         for (Thread thread : Workers) {
@@ -67,6 +70,19 @@ public class Main {
         out.println("seeds per second: " + totalSeedsAttempted/seconds);
         out.println("seeds per second per thread: " + totalSeedsAttempted/seconds/Jobs.length);
     }
+    public static long[] generateStartOffsets(int threadCount, long seedAmount) {
+        Random rng = new Random();
 
+        long base = rng.nextLong();
+        long step = Math.max(1, seedAmount / threadCount);
+
+        long[] starts = new long[threadCount];
+
+        for (int i = 0; i < threadCount; i++) {
+            starts[i] = base + (i * step);
+        }
+
+        return starts;
+    }
 
 }

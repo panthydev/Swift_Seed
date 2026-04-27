@@ -14,17 +14,26 @@ import static java.lang.System.out;
 public class SeedJob implements Runnable {
     public JobData jobData;
     public long currSeedAttempt;
-    public static final int MAX_STRONGHOLD_RANGE = 3000;
-    public static final int MAX_DISTANCE_FROM_STRONGHOLD = 300;
-    SeedJob(int version, Arena arena, long  seedAmount ) {
+    public long currSeed;
+    public int threadId;
+    public long baseOffset;
+    public static final int MAX_STRONGHOLD_RANGE = 1500;
+    public static final int MAX_DISTANCE_FROM_STRONGHOLD = 500;
+    SeedJob(int version, Arena arena, long  seedAmount, int threadId, long baseOffset ) {
         jobData = new JobData(arena, seedAmount, version);
+        this.threadId = threadId;
+        this.baseOffset = baseOffset;
     }
     @Override
     public void run() {
 
 
     for (currSeedAttempt = 0; currSeedAttempt <= jobData.seedAmount; currSeedAttempt++) {
-        ProcessSeed(currSeedAttempt); }
+
+        long seed = baseOffset + currSeedAttempt + threadId;
+        ProcessSeed(seed);
+        //out.println(" Thread: " + threadId + " Seed: " + seed);
+        }
     }
 
     public void ProcessSeed(long seed) {
