@@ -15,7 +15,6 @@ public class Main {
 
     static int version;
     static long startTime;
-    static Arena arena;
 
 
     static void main(String[] args) {
@@ -27,7 +26,7 @@ public class Main {
 
 
         for (int i = 1; i < Workers.length +1; i++) {
-            SeedJob job = new SeedJob(version, arena, seedAmount, i, offsets[i-1]);
+            SeedJob job = new SeedJob(version, seedAmount, i, offsets[i-1]);
             Thread thread = new Thread(job);
             out.println(thread.getName());
             thread.setPriority(Thread.MAX_PRIORITY);
@@ -36,6 +35,7 @@ public class Main {
             jobs[i -1] = job;
         }
 
+        startStatsPrinter(jobs);
         for (Thread thread : Workers) {
             try {
                 thread.join();
@@ -52,7 +52,7 @@ public class Main {
         CubiomesInit.load();
         startTime = System.nanoTime();
         version = Cubiomes.MC_1_21();
-        arena = Arena.global();
+
 
     }
 
@@ -83,6 +83,60 @@ public class Main {
         }
 
         return starts;
+    }
+
+    public static void startStatsPrinter(SeedJob[] jobs) {
+        Thread stats = new Thread(() -> {
+
+
+            long lastTotal = 0;
+            long lastTime = System.nanoTime();
+
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+
+                long total = 0;
+
+                // sum all thread progress
+                for (SeedJob job : jobs) {
+                    total += job.currSeedAttempt;
+                }
+
+                long now = System.nanoTime();
+
+                double seconds = (now - lastTime) / 1e9;
+                long delta = total - lastTotal;
+
+                double sps = delta / seconds;
+
+                Runtime rt = Runtime.getRuntime();
+                long usedMB = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024);
+
+                System.out.println("SPS: " + formatSPS(sps) +
+                        " | total: " + total +
+                        " | RAM: " + usedMB + " MB");
+
+                lastTotal = total;
+                lastTime = now;
+            }
+        });
+
+        stats.setDaemon(true);
+        stats.start();
+    }
+
+    public static String formatSPS(double value) {
+        if (value >= 1_000_000) {
+            return String.format("%.2f million", value / 1_000_000);
+        } else if (value >= 1_000) {
+            return String.format("%.2f k", value / 1_000);
+        } else {
+            return String.format("%.0f", value);
+        }
     }
 
 }

@@ -13,24 +13,31 @@ public class JobData {
     Arena arena;
     long seedAmount;
     int version;
-
     MemorySegment pos;
+    MemorySegment memStrongholdPos;
     Position spawnPos;
     Position structurePos;
+    Position strongholdPos;
     int structure = Cubiomes.Village();
 
-    public JobData(Arena arena, long seedAmount, int version ) {
-        generator = Generator.allocate(arena);
-        this.arena = arena;
+    public JobData(long seedAmount, int version ) {
         this.seedAmount = seedAmount;
         this.version = version;
-        this.pos = arena.allocate(2 * Integer.BYTES);
         this.spawnPos = new Position(0, 0);
         this.structurePos = new Position(0, 0);
+        this.strongholdPos = new Position(0, 0);
+    }
 
+
+    public void init() {
+        arena = Arena.ofConfined();
+        generator = Generator.allocate(arena);
+        this.pos = arena.allocate(2 * Integer.BYTES);
 
         Cubiomes.setupGenerator(generator, version, 0);
+
     }
+
 
 
 }

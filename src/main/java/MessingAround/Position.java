@@ -17,6 +17,10 @@ public class Position {
         return " {" + x + ", " + z + "}";
  }
 
+ public String PrintTp(){
+     return "/teleport @a " + x + " 200" + " " + z;
+ }
+
  public static long Distance(Position position1, Position position2) {
         return Math.abs(position2.x - position1.x) + Math.abs(position2.z - position1.z);
  }
