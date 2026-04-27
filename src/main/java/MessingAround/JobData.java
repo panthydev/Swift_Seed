@@ -15,7 +15,6 @@ public class JobData {
     int version;
 
     MemorySegment pos;
- //   MemorySegment spawn;
     Position spawnPos;
     Position structurePos;
     int structure = Cubiomes.Village();
@@ -28,6 +27,7 @@ public class JobData {
         this.pos = arena.allocate(2 * Integer.BYTES);
         this.spawnPos = new Position(0, 0);
         this.structurePos = new Position(0, 0);
+
 
         Cubiomes.setupGenerator(generator, version, 0);
     }

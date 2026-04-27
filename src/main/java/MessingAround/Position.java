@@ -12,6 +12,15 @@ public class Position {
         long rangeSquared = range * range;
         return (position.x * position.x + position.z * position.z <= rangeSquared);
  }
+
+ public String Print(){
+        return " {" + x + ", " + z + "}";
+ }
+
+ public static long Distance(Position position1, Position position2) {
+        return Math.abs(position2.x - position1.x) + Math.abs(position2.z - position1.z);
+ }
+
     public boolean isEmpty() {
         return x == 0 && z == 0;
     }
