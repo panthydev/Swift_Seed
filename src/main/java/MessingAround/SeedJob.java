@@ -2,6 +2,7 @@ package MessingAround;
 
 import dev.xpple.cubiomes.Cubiomes;
 import dev.xpple.cubiomes.Generator;
+import dev.xpple.cubiomes.Pos;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -18,6 +19,8 @@ public class SeedJob implements Runnable {
     public int threadId;
     public long baseOffset;
     public static final int MAX_STRONGHOLD_RANGE = 1400;
+
+    public static final int MAX_SPAWN_DISTANCE_FROM_STRONGHOLD = 650;
     public static final int MAX_DISTANCE_FROM_STRONGHOLD = 16;
 
     public void init(){
@@ -54,9 +57,12 @@ public class SeedJob implements Runnable {
 
         jobData.strongholdPos = FindStronghold(jobData, seed);
         if (IsStrongholdGood(jobData.strongholdPos)) {} else return;
-        FindStructure(jobData, seed);
+        if (!FindStructure(jobData, seed)) return;
         if (!IsStructureGood(jobData.structurePos,  jobData.strongholdPos)) return;
 
+
+
+        Cubiomes.setupGenerator(jobData.generator, Cubiomes.MC_1_21(), 0);
         Cubiomes.applySeed(jobData.generator, Cubiomes.DIM_OVERWORLD(), seed);
         boolean validVillage = Cubiomes.isViableStructurePos(jobData.structure,
                 jobData.generator,
@@ -64,23 +70,30 @@ public class SeedJob implements Runnable {
                 jobData.structurePos.getBlockZ(),
                 0) != 0;
 
-
         if (!validVillage){return;}
-        {out.println("seed : " + seed + " has a good stronghold at: "
+        FindSpawn();
+        if (!IsSpawnGood(jobData.spawnPos, jobData.strongholdPos)){
+            return;
+        }
+        out.println("seed : " + seed + " has a good stronghold at: "
                 +  jobData.strongholdPos.Print()
                 + " with a village at: "
-                + jobData.structurePos.Print());}
+                + jobData.structurePos.Print() +
+                " spawn at: "
+                + jobData.spawnPos.Print());
 
         out.println(jobData.structurePos.PrintTp());
+    }
 
+    private void FindSpawn() {
+        jobData.memSpawnPos = Cubiomes.getSpawn(jobData.arena, jobData.generator);
+        jobData.spawnPos.setFromBlock(jobData.memSpawnPos.get(ValueLayout.JAVA_INT, 0), jobData.memSpawnPos.get(ValueLayout.JAVA_INT, 4));
+    }
 
-
-        //MemorySegment spawn = Cubiomes.getSpawn(jobData.arena, jobData.generator);
-        //jobData.spawnPos.setFromBlock(spawn.get(ValueLayout.JAVA_INT, 0), spawn.get(ValueLayout.JAVA_INT, 4));
-
-
-
-
+    private boolean IsSpawnGood(Position spawnPos, Position strongholdPos){
+       if (Position.Distance(spawnPos, strongholdPos) > MAX_SPAWN_DISTANCE_FROM_STRONGHOLD){
+           return false;
+       } else return true;
     }
 
     public static boolean IsStrongholdGood(Position position) {
@@ -88,11 +101,13 @@ public class SeedJob implements Runnable {
     }
 
 
-    public static void FindStructure(JobData jobData, long seed){
+    public static boolean FindStructure(JobData jobData, long seed){
 
-        Cubiomes.getStructurePos(jobData.structure, jobData.version, seed, jobData.strongholdPos.getRegionX(), jobData.strongholdPos.getRegionZ(), jobData.pos);
+        Cubiomes.getStructurePos(jobData.structure, jobData.version, seed, jobData.strongholdPos.VILgetRegionX(), jobData.strongholdPos.VILgetRegionZ(), jobData.pos);
 
         jobData.structurePos.setFromBlock(jobData.pos.get(ValueLayout.JAVA_INT, 0), jobData.pos.get(ValueLayout.JAVA_INT, 4));
+        if (jobData.structurePos.isEmpty()) return false;
+        return true;
     }
 
     public static boolean IsStructureGood(Position structurePos, Position StrongholdPos) {

@@ -15,6 +15,8 @@ public class JobData {
     int version;
     MemorySegment pos;
     MemorySegment memStrongholdPos;
+
+    MemorySegment memSpawnPos;
     Position spawnPos;
     Position structurePos;
     Position strongholdPos;

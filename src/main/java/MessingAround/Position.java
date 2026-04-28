@@ -3,6 +3,8 @@ package MessingAround;
 public class Position {
     int x;
     int z;
+
+    public static final int VILLAGE_REGION_SIZE = 544;
     public Position(int x, int z) {
         this.x = x;
         this.z = z;
@@ -64,5 +66,19 @@ public class Position {
     }
 
 
+
+
+    public void VILsetFromRegion(int x, int z) {
+        this.x = x * VILLAGE_REGION_SIZE;
+        this.z = z * VILLAGE_REGION_SIZE;
+    }
+
+    public int VILgetRegionX() {
+        return (int)Math.floor((double)x / VILLAGE_REGION_SIZE);
+    }
+
+    public int VILgetRegionZ() {
+        return (int)Math.floor((double)z / VILLAGE_REGION_SIZE);
+    }
 
 }
