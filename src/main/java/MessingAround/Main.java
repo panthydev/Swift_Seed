@@ -2,14 +2,7 @@ package MessingAround;
 
 import dev.xpple.cubiomes.Cubiomes;
 import dev.xpple.cubiomes.CubiomesInit;
-import dev.xpple.cubiomes.Generator;
-import dev.xpple.cubiomes.Range;
-
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
-import java.util.ArrayList;
-import java.util.Random;
-
+import static MessingAround.Utils.*;
 import static java.lang.System.out;
 
 public class Main {
@@ -33,7 +26,6 @@ public class Main {
             SeedJob job = new SeedJob(version, seedAmount, i, offsets[i-1], resultHandlers[i-1]);
             Thread thread = new Thread(job);
 
-            out.println(thread.getName());
             thread.setPriority(Thread.MAX_PRIORITY);
             thread.start();
             Workers[i -1] = thread;
@@ -42,6 +34,7 @@ public class Main {
 
         startMainManager(resultHandlers);
         startStatsPrinter(jobs);
+
         for (Thread thread : Workers) {
             try {
                 thread.join();
@@ -50,7 +43,7 @@ public class Main {
             }
         }
 
-        ViewStats(jobs);
+        ViewStats(jobs, startTime);
     }
 
 
@@ -62,110 +55,12 @@ public class Main {
 
     }
 
-    public static void ViewStats(SeedJob[] Jobs) {
-        long end = System.nanoTime();
-        double seconds = (end - startTime) / 1_000_000_000.0;
-        long totalSeedsAttempted = 0;
-        for (SeedJob job : Jobs) {
-            totalSeedsAttempted += job.currSeedAttempt;
-        }
-
-
-
-
-
-        out.println(totalSeedsAttempted + " Completed in: " + seconds + " seconds");
-        out.println("seeds per second: " + totalSeedsAttempted/seconds);
-        out.println("seeds per second per thread: " + totalSeedsAttempted/seconds/Jobs.length);
-    }
-    public static long[] generateStartOffsets(int threadCount, long seedAmount) {
-        Random rng = new Random();
-
-        long base = rng.nextLong();
-        long step = Math.max(1, seedAmount / threadCount);
-
-        long[] starts = new long[threadCount];
-
-        for (int i = 0; i < threadCount; i++) {
-            starts[i] = base + (i * step);
-        }
-
-        return starts;
-    }
-
     public static void startMainManager(ResultHandler[] resultHandlers) {
-       Thread manager = new Thread(() -> {
-           ArrayList<Result> results = new ArrayList<>();
-           while (true) {
-               try {
-                   Thread.sleep(1000);
-               } catch (InterruptedException e) {return;}
-
-               for (ResultHandler resultHandler : resultHandlers) {
-                   for (Result result = resultHandler.pollResult(); result != null; result = resultHandler.pollResult()) {
-                       results.add(result);
-                       result.PrintResult();
-                   }
-               }
-           }
-       });
-
-       manager.start();
+       Thread mainManager = new MainManager(1000,  resultHandlers);
+       mainManager.start();
     }
-
-
     public static void startStatsPrinter(SeedJob[] jobs) {
-        Thread stats = new Thread(() -> {
-
-
-            long lastTotal = 0;
-            long lastTime = System.nanoTime();
-
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    return;
-                }
-
-                long total = 0;
-
-                // sum all thread progress
-                for (SeedJob job : jobs) {
-                    total += job.currSeedAttempt;
-                }
-
-                long now = System.nanoTime();
-
-                double seconds = (now - lastTime) / 1e9;
-                long delta = total - lastTotal;
-
-                double sps = delta / seconds;
-
-                Runtime rt = Runtime.getRuntime();
-                long usedMB = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024);
-
-                System.out.println("SPS: " + formatSPS(sps) +
-                        " | total: " + total +
-                        " | RAM: " + usedMB + " MB");
-
-                lastTotal = total;
-                lastTime = now;
-            }
-        });
-
-        stats.setDaemon(true);
-        stats.start();
+        Thread statsPrinter = new StatPrinter(1000, jobs);
+        statsPrinter.start();
     }
-
-    public static String formatSPS(double value) {
-        if (value >= 1_000_000) {
-            return String.format("%.2f million", value / 1_000_000);
-        } else if (value >= 1_000) {
-            return String.format("%.2f k", value / 1_000);
-        } else {
-            return String.format("%.0f", value);
-        }
-    }
-
 }
