@@ -1,4 +1,4 @@
-﻿package MessingAround;
+package MessingAround;
 
 import java.util.Random;
 
@@ -31,6 +31,14 @@ public class Utils {
     }
 
     public static void ViewStats(SeedJob[] Jobs, long startTime) {
+
+        //delay so it doesn't print inside SPS prints
+        try {
+            Thread.sleep(1250);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         long end = System.nanoTime();
         double seconds = (end - startTime) / 1_000_000_000.0;
         long totalSeedsAttempted = 0;

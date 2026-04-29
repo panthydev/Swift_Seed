@@ -1,4 +1,4 @@
-﻿package MessingAround;
+package MessingAround;
 
 import static MessingAround.Utils.*;
 
@@ -19,7 +19,7 @@ public class StatPrinter extends Thread {
         long lastTotal = 0;
         long lastTime = System.nanoTime();
 
-        while (true) {
+        while (isJobsRunning()) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -49,6 +49,18 @@ public class StatPrinter extends Thread {
 
             lastTotal = total;
             lastTime = now;
+
     }
 }
+
+    private boolean isJobsRunning() {
+        for (SeedJob job : jobs) {
+            if (job.isRunning) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

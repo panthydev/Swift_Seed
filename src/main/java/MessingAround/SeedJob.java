@@ -15,13 +15,14 @@ import static java.lang.System.out;
 public class SeedJob implements Runnable {
     public JobData jobData;
     public long currSeedAttempt;
-    public long currSeed;
     public int threadId;
     public long baseOffset;
+    public boolean isRunning = true;
 
     public ResultHandler resultHandler;
     public void init(){
         jobData.init();
+        isRunning = true;
     }
 
 
@@ -56,6 +57,8 @@ public class SeedJob implements Runnable {
 
             jobData.arena.close(); // FREE EVERYTHING
         }
+        isRunning = false;
+
     }
 
 
