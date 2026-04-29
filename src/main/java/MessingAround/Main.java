@@ -7,6 +7,7 @@ import dev.xpple.cubiomes.Range;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static java.lang.System.out;
@@ -23,11 +24,15 @@ public class Main {
         Thread[] Workers =  new Thread[Integer.parseInt(args[1])];
         SeedJob[] jobs = new SeedJob[Workers.length];
         long[] offsets = generateStartOffsets(Workers.length,  seedAmount);
+        ResultHandler[]  resultHandlers = new ResultHandler[Workers.length];
 
 
         for (int i = 1; i < Workers.length +1; i++) {
-            SeedJob job = new SeedJob(version, seedAmount, i, offsets[i-1]);
+            ResultHandler resultHandler = new ResultHandler();
+            resultHandlers[i-1] = resultHandler;
+            SeedJob job = new SeedJob(version, seedAmount, i, offsets[i-1], resultHandlers[i-1]);
             Thread thread = new Thread(job);
+
             out.println(thread.getName());
             thread.setPriority(Thread.MAX_PRIORITY);
             thread.start();
@@ -35,6 +40,7 @@ public class Main {
             jobs[i -1] = job;
         }
 
+        startMainManager(resultHandlers);
         startStatsPrinter(jobs);
         for (Thread thread : Workers) {
             try {
@@ -66,6 +72,8 @@ public class Main {
 
 
 
+
+
         out.println(totalSeedsAttempted + " Completed in: " + seconds + " seconds");
         out.println("seeds per second: " + totalSeedsAttempted/seconds);
         out.println("seeds per second per thread: " + totalSeedsAttempted/seconds/Jobs.length);
@@ -84,6 +92,27 @@ public class Main {
 
         return starts;
     }
+
+    public static void startMainManager(ResultHandler[] resultHandlers) {
+       Thread manager = new Thread(() -> {
+           ArrayList<Result> results = new ArrayList<>();
+           while (true) {
+               try {
+                   Thread.sleep(1000);
+               } catch (InterruptedException e) {return;}
+
+               for (ResultHandler resultHandler : resultHandlers) {
+                   for (Result result = resultHandler.pollResult(); result != null; result = resultHandler.pollResult()) {
+                       results.add(result);
+                       result.PrintResult();
+                   }
+               }
+           }
+       });
+
+       manager.start();
+    }
+
 
     public static void startStatsPrinter(SeedJob[] jobs) {
         Thread stats = new Thread(() -> {
