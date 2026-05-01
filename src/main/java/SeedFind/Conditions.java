@@ -6,7 +6,6 @@ public class Conditions {
     public int maxVillageDistFromStronghold = 64;
 
 
-
     public Conditions(int maxStrongholdRangeFromOrigin, int maxPlayerSpawnDistFromStronghold, int maxVillageDistFromStronghold) {
         this.maxStrongholdRangeFromOrigin = maxStrongholdRangeFromOrigin;
         this.maxPlayerSpawnDistFromStronghold = maxPlayerSpawnDistFromStronghold;

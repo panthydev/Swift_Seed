@@ -8,28 +8,28 @@ public class SeedJob implements Runnable {
     public boolean isRunning = true;
 
     public ResultHandler resultHandler;
-    public void init(){
+
+    public void init() {
         jobData.init();
         isRunning = true;
     }
 
 
-
-
-    SeedJob(int version, long  seedAmount, int threadId, long baseOffset, ResultHandler resultHandler ) {
+    SeedJob(int version, long seedAmount, int threadId, long baseOffset, ResultHandler resultHandler) {
         jobData = new JobData(seedAmount, version);
         this.threadId = threadId;
         this.baseOffset = baseOffset;
         this.resultHandler = resultHandler;
 
     }
+
     @Override
     public void run() {
         init();
-        SeedEvaluator evaluator =  new SeedEvaluator(jobData, new Conditions(
+        SeedEvaluator evaluator = new SeedEvaluator(jobData, new Conditions(
                 1416,
                 500,
-                32), resultHandler) ;
+                32), resultHandler);
 
         final int BATCH_SIZE = 1_000_00;
 
@@ -48,7 +48,6 @@ public class SeedJob implements Runnable {
         isRunning = false;
 
     }
-
 
 
 }

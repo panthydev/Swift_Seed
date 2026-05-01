@@ -17,7 +17,7 @@ public class Main {
     static Thread[] Workers;
     static SeedJob[] jobs;
     static long[] offsets;
-    static ResultHandler[]  resultHandlers;
+    static ResultHandler[] resultHandlers;
 
     public static void main(String[] args) {
 
@@ -27,8 +27,8 @@ public class Main {
         PrepareWorkers(args);
         CreateWorkers();
 
-        startMainManager(resultHandlers);
-        startStatsPrinter(jobs);
+        StartMainManager(resultHandlers);
+        StartStatsPrinter(jobs);
 
         WaitUntilComplete();
         ViewStats(jobs, startTime);
@@ -43,10 +43,10 @@ public class Main {
 
         out.println("Welcome to Swift seed!" + "\n" + "\n");
         seedAmount = ReadSeedAmount(sc, "Enter number of seeds to search through: ");
-        Workers = new Thread[readInt(sc, "Enter number of threads to use ")];
+        Workers = new Thread[ReadInt(sc, "Enter number of threads to use ")];
 
-        out.println("\n" + "Great, Swift seed will search through: " + seedAmount + " seeds, with " +  Workers.length + " threads" );
-        seedAmount = seedAmount/Workers.length;
+        out.println("\n" + "Great, Swift seed will search through: " + seedAmount + " seeds, with " + Workers.length + " threads");
+        seedAmount = seedAmount / Workers.length;
     }
 
 
@@ -57,36 +57,44 @@ public class Main {
             Thread.currentThread().interrupt();
         }
 
-        for(Thread w : Workers) {
+        for (Thread w : Workers) {
             w.interrupt();
         }
         System.exit(0);
     }
 
 
-
-    //Gets input from user, until a long is given
+    //Gets input from user, until a positive long is given
     private static long ReadSeedAmount(Scanner sc, String prompt) {
         while (true) {
             System.out.print(prompt);
 
             if (sc.hasNextLong()) {
-                return sc.nextLong();
+                long value = sc.nextLong();
+                if (value > 0) {
+                    return value;
+                } else {
+                    System.out.println("Invalid input. Please enter a positive number.");
+                }
             } else {
                 System.out.println("Invalid input. Please enter a number.");
                 sc.next();
             }
         }
-
     }
 
-    //Gets input from user, until an int is given
-    public static int readInt(Scanner scanner, String prompt) {
+    //Gets input from user, until a positive int is given within range
+    public static int ReadInt(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);
 
             if (scanner.hasNextInt()) {
-                return scanner.nextInt();
+                int value = scanner.nextInt();
+                if (value > 0 && value <= 16) {
+                    return value;
+                } else {
+                    System.out.println("Invalid input. Please enter a number between 1 and 16.");
+                }
             } else {
                 System.out.println("Invalid input. Please enter a whole number.");
                 scanner.next();
@@ -105,37 +113,39 @@ public class Main {
     }
 
     private static void CreateWorkers() {
-        for (int i = 1; i < Workers.length +1; i++) {
+        for (int i = 1; i < Workers.length + 1; i++) {
             ResultHandler resultHandler = new ResultHandler();
-            resultHandlers[i-1] = resultHandler;
-            SeedJob job = new SeedJob(version, seedAmount, i, offsets[i-1], resultHandlers[i-1]);
+            resultHandlers[i - 1] = resultHandler;
+            SeedJob job = new SeedJob(version, seedAmount, i, offsets[i - 1], resultHandlers[i - 1]);
             Thread thread = new Thread(job);
 
             thread.setPriority(Thread.MAX_PRIORITY);
             thread.start();
-            Workers[i -1] = thread;
-            jobs[i -1] = job;
+            Workers[i - 1] = thread;
+            jobs[i - 1] = job;
         }
     }
 
     private static void PrepareWorkers(String[] args) {
         jobs = new SeedJob[Workers.length];
-        offsets = generateStartOffsets(Workers.length,  seedAmount);
+        offsets = generateStartOffsets(Workers.length, seedAmount);
         resultHandlers = new ResultHandler[Workers.length];
     }
 
 
-    public static void Init(){
+    //CubiomesInit.Load MUST be called before any cubiomes usage
+    public static void Init() {
         CubiomesInit.load();
         startTime = System.nanoTime();
         version = Cubiomes.MC_1_21();
     }
 
-    public static void startMainManager(ResultHandler[] resultHandlers) {
-       Thread mainManager = new MainManager(1000,  resultHandlers);
-       mainManager.start();
+    public static void StartMainManager(ResultHandler[] resultHandlers) {
+        Thread mainManager = new MainManager(1000, resultHandlers);
+        mainManager.start();
     }
-    public static void startStatsPrinter(SeedJob[] jobs) {
+
+    public static void StartStatsPrinter(SeedJob[] jobs) {
         Thread statsPrinter = new StatPrinter(1000, jobs);
         statsPrinter.start();
     }

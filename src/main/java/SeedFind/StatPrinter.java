@@ -84,6 +84,9 @@ public class StatPrinter extends Thread {
         }
     }
 
+    /**
+     * Clears the console with cmd magic or by printing 50 empty lines as a fallback lmao
+     */
     public static void clearConsole() {
         try {
             new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();

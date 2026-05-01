@@ -14,14 +14,14 @@ public class ResultSaver {
 
     public ResultSaver() {
         this.resultsDir = Paths.get(System.getProperty("user.dir"), "results");
-        createDirIfNeeded();
+        CreateDirIfNeeded();
 
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
 
         this.resultFile = resultsDir.resolve(timestamp + ".txt");
     }
 
-    private void createDirIfNeeded() {
+    private void CreateDirIfNeeded() {
         try {
             Files.createDirectories(resultsDir);
         } catch (IOException e) {
@@ -29,7 +29,7 @@ public class ResultSaver {
         }
     }
 
-    public void saveResults(List<Result> results) {
+    public void SaveResults(List<Result> results) {
         StringBuilder sb = new StringBuilder();
 
         for (Result r : results) {
@@ -47,9 +47,5 @@ public class ResultSaver {
         } catch (IOException e) {
             throw new RuntimeException("Failed to write results file", e);
         }
-    }
-
-    public Path getResultFile() {
-        return resultFile;
     }
 }

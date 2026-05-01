@@ -68,7 +68,7 @@ public class TestingClass {
         if (validVillage){
             Position strongholdPos = FindStronghold(arena, version, seed, generator);
 
-            if (!strongholdPos.isEmpty()){
+            if (!strongholdPos.IsEmpty()){
                 out.println("Seed: " + seed + " has a village near spawn at: " + structureX + ", " + structureZ);
                 out.println("stronghold pos: " + strongholdPos.x + " " + strongholdPos.z);
             }

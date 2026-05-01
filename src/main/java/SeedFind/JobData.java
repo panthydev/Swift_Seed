@@ -20,7 +20,7 @@ public class JobData {
     Position strongholdPos;
     int structure = Cubiomes.Village();
 
-    public JobData(long seedAmount, int version ) {
+    public JobData(long seedAmount, int version) {
         this.seedAmount = seedAmount;
         this.version = version;
         this.spawnPos = new Position(0, 0);
@@ -37,7 +37,6 @@ public class JobData {
         Cubiomes.setupGenerator(generator, version, 0);
 
     }
-
 
 
 }
