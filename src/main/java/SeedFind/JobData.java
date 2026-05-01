@@ -1,12 +1,10 @@
-package MessingAround;
+package SeedFind;
 
 import dev.xpple.cubiomes.Cubiomes;
 import dev.xpple.cubiomes.Generator;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.util.Random;
-import java.util.random.RandomGenerator;
 
 public class JobData {
     MemorySegment generator;

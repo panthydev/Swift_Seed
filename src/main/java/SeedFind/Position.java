@@ -1,4 +1,4 @@
-package MessingAround;
+package SeedFind;
 
 public class Position {
     int x;

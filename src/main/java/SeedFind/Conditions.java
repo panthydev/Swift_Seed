@@ -1,4 +1,4 @@
-package MessingAround;
+package SeedFind;
 
 public class Conditions {
     public int maxStrongholdRangeFromOrigin = 1400;

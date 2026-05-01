@@ -1,16 +1,4 @@
-package MessingAround;
-
-import dev.xpple.cubiomes.Cubiomes;
-import dev.xpple.cubiomes.Generator;
-import dev.xpple.cubiomes.Pos;
-
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
-import java.lang.foreign.ValueLayout;
-import java.util.Random;
-import java.util.random.RandomGenerator;
-
-import static java.lang.System.out;
+package SeedFind;
 
 public class SeedJob implements Runnable {
     public JobData jobData;
@@ -40,7 +28,7 @@ public class SeedJob implements Runnable {
         init();
         SeedEvaluator evaluator =  new SeedEvaluator(jobData, new Conditions(
                 1416,
-                50,
+                500,
                 32), resultHandler) ;
 
         final int BATCH_SIZE = 1_000_00;

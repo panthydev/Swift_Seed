@@ -1,13 +1,15 @@
-package MessingAround;
+package SeedFind;
 
 import java.util.ArrayList;
 
 public class MainManager extends Thread {
     int sleepInterval;
     ResultHandler[] resultHandlers;
+    ResultSaver resultSaver;
     public MainManager(int sleepInterval,  ResultHandler[] resultHandlers) {
         this.sleepInterval = sleepInterval;
         this.resultHandlers = resultHandlers;
+        this.resultSaver = new ResultSaver();
     }
     @Override
     public void run() {
@@ -21,9 +23,10 @@ public class MainManager extends Thread {
             for (ResultHandler resultHandler : resultHandlers) {
                 for (Result result = resultHandler.pollResult(); result != null; result = resultHandler.pollResult()) {
                     results.add(result);
-                    result.PrintResult();
                 }
             }
+
+            resultSaver.saveResults(results);
         }
     }
 }

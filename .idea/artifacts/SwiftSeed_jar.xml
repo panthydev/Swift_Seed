@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SwiftSeed:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SwiftSeed_jar</output-path>
+    <root id="archive" name="SwiftSeed.jar">
+      <element id="module-output" name="SwiftSeed" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/dev/xpple/cubiomes/0.0.0-2026.4.10.1775848358+6092570ca20f18f64148dd393c944dcfbf7f6525/cubiomes-0.0.0-2026.4.10.1775848358+6092570ca20f18f64148dd393c944dcfbf7f6525.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

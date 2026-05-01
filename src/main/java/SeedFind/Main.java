@@ -1,11 +1,11 @@
-package MessingAround;
+package SeedFind;
 
 import dev.xpple.cubiomes.Cubiomes;
 import dev.xpple.cubiomes.CubiomesInit;
 
 import java.util.Scanner;
 
-import static MessingAround.Utils.*;
+import static SeedFind.Utils.*;
 import static java.lang.System.out;
 
 public class Main {
@@ -19,19 +19,9 @@ public class Main {
     static long[] offsets;
     static ResultHandler[]  resultHandlers;
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
 
-
-        Scanner sc = new Scanner(System.in);
-
-        out.println("Welcome to Swift seed!" + "\n" + "\n");
-        seedAmount = ReadSeedAmount(sc, "Enter number of seeds to search through: ");
-        Workers = new Thread[readInt(sc, "Enter number of threads to use ")];
-
-        out.println("\n" + "Great, Swift seed will search through: " + seedAmount + " seeds, with " +  Workers.length + " threads" );
-        seedAmount = seedAmount/Workers.length;
-
-
+        GetInput();
         Init();
 
         PrepareWorkers(args);
@@ -42,8 +32,40 @@ public class Main {
 
         WaitUntilComplete();
         ViewStats(jobs, startTime);
+
+        EndProgram();
     }
 
+
+    //Gets amount of seeds to search and number of threads to use
+    private static void GetInput() {
+        Scanner sc = new Scanner(System.in);
+
+        out.println("Welcome to Swift seed!" + "\n" + "\n");
+        seedAmount = ReadSeedAmount(sc, "Enter number of seeds to search through: ");
+        Workers = new Thread[readInt(sc, "Enter number of threads to use ")];
+
+        out.println("\n" + "Great, Swift seed will search through: " + seedAmount + " seeds, with " +  Workers.length + " threads" );
+        seedAmount = seedAmount/Workers.length;
+    }
+
+
+    private static void EndProgram() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        for(Thread w : Workers) {
+            w.interrupt();
+        }
+        System.exit(0);
+    }
+
+
+
+    //Gets input from user, until a long is given
     private static long ReadSeedAmount(Scanner sc, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -58,6 +80,7 @@ public class Main {
 
     }
 
+    //Gets input from user, until an int is given
     public static int readInt(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);

@@ -1,10 +1,8 @@
-package MessingAround;
+package SeedFind;
 
 import dev.xpple.cubiomes.Cubiomes;
 
 import java.lang.foreign.ValueLayout;
-
-import static java.lang.System.out;
 
 public class SeedEvaluator {
 

@@ -1,4 +1,4 @@
-package MessingAround;
+package SeedFind;
 
 import java.util.Random;
 

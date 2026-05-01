@@ -1,23 +1,30 @@
-package MessingAround;
+package SeedFind;
 
-import static MessingAround.Utils.*;
+import java.util.ArrayList;
+
+import static SeedFind.Utils.*;
 
 public class StatPrinter extends Thread {
 
     int sleepInterval = 1000;
+    long lastTotal = 0;
+    long lastTime;
     SeedJob[] jobs;
+    ArrayList<ResultHandler> resultHandlers;
+    int totalViableResults;
 
     public StatPrinter(int sleepInterval, SeedJob[] jobs) {
     this.sleepInterval = sleepInterval;
-    this.jobs = jobs;}
+    this.jobs = jobs;
+    init();}
 
 
     @Override
     public void run() {
         super.run();
 
-        long lastTotal = 0;
-        long lastTime = System.nanoTime();
+
+        lastTime = System.nanoTime();
 
         while (isJobsRunning()) {
             try {
@@ -25,9 +32,8 @@ public class StatPrinter extends Thread {
             } catch (InterruptedException e) {
                 return;
             }
-
+            CheckViableResults();
             long total = 0;
-
             // sum all thread progress
             for (SeedJob job : jobs) {
                 total += job.currSeedAttempt;
@@ -43,8 +49,11 @@ public class StatPrinter extends Thread {
             Runtime rt = Runtime.getRuntime();
             long usedMB = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024);
 
+
+            clearConsole();
             System.out.println("SPS: " + formatSPS(sps) +
                     " | total: " + total +
+                    " | viable results: " + totalViableResults +
                     " | RAM: " + usedMB + " MB");
 
             lastTotal = total;
@@ -61,6 +70,32 @@ public class StatPrinter extends Thread {
         }
         return false;
     }
+
+    private void init(){
+        resultHandlers = new ArrayList<>();
+        for (SeedJob job : jobs) {
+            resultHandlers.add(job.resultHandler);
+        }
+    }
+
+    private void CheckViableResults() {
+        for (ResultHandler resultHandler : resultHandlers) {
+            totalViableResults += resultHandler.GetResultCount();
+        }
+    }
+
+    public static void clearConsole() {
+        try {
+            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+        } catch (Exception e) {
+            // fallback
+            for (int i = 0; i < 50; i++) {
+                System.out.println();
+            }
+        }
+    }
+
+
 
 
 }

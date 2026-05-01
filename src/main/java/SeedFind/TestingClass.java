@@ -1,4 +1,4 @@
-package MessingAround;
+package SeedFind;
 
 import dev.xpple.cubiomes.*;
 import java.lang.foreign.Arena;
